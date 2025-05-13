@@ -6,6 +6,8 @@ from threading import Thread
 import signal
 import psutil
 import logging
+from bot.frank import bot
+from bot.config.settings import DISCORD_BOT_TOKEN
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -13,24 +15,21 @@ logger = logging.getLogger(__name__)
 
 def run_fastapi():
     """Run the FastAPI server"""
-    logger.info("Starting FastAPI server...")
     try:
-        subprocess.run(
-            [sys.executable, "-m", "uvicorn", "bot.backend:app", "--host", "0.0.0.0", "--port", "8000", "--reload"],
-            check=True
-        )
+        logger.info("Starting FastAPI server...")
+        subprocess.run([sys.executable, "-m", "uvicorn", "bot.backend:app", "--reload"], check=True)
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error starting FastAPI server: {e}")
-        sys.exit(1)
+        logger.error(f"FastAPI server error: {e}")
+    except Exception as e:
+        logger.error(f"Error running FastAPI server: {e}")
 
 def run_discord_bot():
     """Run the Discord bot"""
-    logger.info("Starting Discord bot...")
     try:
-        subprocess.run([sys.executable, "bot/frank.py"], check=True)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Error starting Discord bot: {e}")
-        sys.exit(1)
+        logger.info("Starting Discord bot...")
+        bot.run(DISCORD_BOT_TOKEN)
+    except Exception as e:
+        logger.error(f"Error running Discord bot: {e}")
 
 def cleanup():
     """Clean up processes on exit"""
@@ -50,15 +49,15 @@ if __name__ == "__main__":
     
     try:
         # Start FastAPI server in a separate thread
-        api_thread = Thread(target=run_fastapi)
-        api_thread.daemon = True  # Thread will exit when main program exits
-        api_thread.start()
+        fastapi_thread = Thread(target=run_fastapi)
+        fastapi_thread.daemon = True  # Thread will exit when main program exits
+        fastapi_thread.start()
 
-        # Give the server a moment to start
-        logger.info("Waiting for server to start...")
-        time.sleep(5)  # Increased wait time to ensure server is ready
+        # Give FastAPI server time to start
+        logger.info("Waiting for FastAPI server to start...")
+        time.sleep(5)
 
-        # Start the Discord bot
+        # Run Discord bot in main thread
         run_discord_bot()
     except KeyboardInterrupt:
         logger.info("\nShutting down...")
