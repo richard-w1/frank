@@ -77,3 +77,6 @@ python run.py
 
 AI can make mistakes. Cryptocurrency trading involves significant risk. Use at your own discretion.
 Also don't give your CoinBase API key transfer permissions.
+
+![lol](https://github.com/user-attachments/assets/6f49f05b-c21a-41fd-bb07-461a8351f108)
+![1](https://github.com/user-attachments/assets/8ace2887-50e7-4f3c-8e07-ab97be314d65)
